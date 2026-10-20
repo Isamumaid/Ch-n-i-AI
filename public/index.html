@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chèn Ơi! AI - Thổ Địa Du Lịch Miền Tây</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f0fdf4}
+.chat-scroll::-webkit-scrollbar{width:5px}.chat-scroll::-webkit-scrollbar-thumb{background:#bbf7d0;border-radius:10px}
+.markdown-body ul{list-style:disc;margin-left:1.25rem;margin-top:.25rem;margin-bottom:.25rem}
+.markdown-body ol{list-style:decimal;margin-left:1.25rem;margin-top:.25rem;margin-bottom:.25rem}
+.markdown-body p{margin-bottom:.5rem}.markdown-body p:last-child{margin-bottom:0}
+.markdown-body strong{color:#14532d;font-weight:700}
+.markdown-body table{width:100%;border-collapse:collapse;margin:.5rem 0;font-size:.875rem}
+.markdown-body th,.markdown-body td{border:1px solid #cbd5e1;padding:.35rem .6rem;text-align:left}
+.markdown-body th{background:#f1f5f9}
+@keyframes dotPulse{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+.typing-dot{animation:dotPulse 1.4s infinite ease-in-out both}.typing-dot:nth-child(1){animation-delay:-.32s}.typing-dot:nth-child(2){animation-delay:-.16s}
+</style>
+</head>
+<body class="h-screen flex justify-center items-center p-0 sm:p-4 md:p-6 antialiased">
+<div class="w-full max-w-2xl h-full sm:h-[92vh] bg-white sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden border border-emerald-100 relative">
+<header class="bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-600 text-white p-3.5 sm:p-4 shadow-md flex items-center justify-between z-10">
+ <div class="flex items-center space-x-3"><div class="relative"><div class="w-11 h-11 rounded-2xl bg-white/20 flex items-center justify-center border border-white/30 text-xl">🚣‍♀️</div><span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-emerald-800 rounded-full animate-pulse"></span></div>
+ <div><h1 class="font-bold text-lg leading-tight flex items-center gap-1.5">Chèn Ơi! AI <span class="text-[10px] bg-amber-400 text-emerald-950 font-extrabold px-1.5 py-0.5 rounded-full uppercase">Thổ địa</span></h1><p class="text-xs text-emerald-100 font-medium"><i class="fa-solid fa-location-dot text-amber-300"></i> Chuyên gia Du lịch Vĩnh Long</p></div></div>
+ <div class="flex items-center space-x-1.5 sm:space-x-2">
+ <button onclick="openStatusModal()" class="px-2.5 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs flex items-center gap-1.5 border border-white/20" title="Trạng thái kết nối"><i class="fa-solid fa-circle-info text-amber-300"></i><span class="hidden sm:inline">Kết nối</span></button>
+ <button onclick="openQrModal()" class="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center border border-white/20" title="Mã QR chia sẻ"><i class="fa-solid fa-qrcode"></i></button>
+ <button onclick="resetChat()" class="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-xl flex items-center justify-center border border-white/20" title="Làm mới"><i class="fa-solid fa-rotate-right"></i></button>
+ </div>
+</header>
+<div id="api-status-bar" class="bg-amber-50 border-b border-amber-200 px-3 py-2 text-xs text-amber-800 hidden">AI chưa kết nối được. Kiểm tra máy chủ và cấu hình GEMINI_API_KEY.</div>
+<div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 chat-scroll bg-gradient-to-b from-emerald-50/40 via-white to-emerald-50/20">
+ <div class="flex items-start space-x-2.5"><div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">🚣‍♀️</div><div class="max-w-[85%] bg-white border border-emerald-100 p-3.5 rounded-2xl shadow-sm text-gray-800 text-sm leading-relaxed markdown-body">Dạ em chào bạn! Em là <strong>Chèn Ơi! AI</strong> – Thổ địa du lịch miệt vườn Vĩnh Long đây ạ! 🌴🌾<br><br>Bạn muốn tìm món ăn đặc sản, vườn trái cây, trải nghiệm sông nước hay cần gợi ý lịch trình du lịch nè?</div></div>
+</div>
+<div id="typing-indicator" class="px-4 py-2 hidden"><div class="flex items-center space-x-2"><div class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs">🚣‍♀️</div><div class="bg-white border border-emerald-100 px-3.5 py-2 rounded-xl shadow-sm flex items-center space-x-1.5"><span class="text-xs text-emerald-700 font-medium mr-1">Chèn Ơi! đang suy nghĩ</span><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full typing-dot"></span><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full typing-dot"></span><span class="w-1.5 h-1.5 bg-emerald-500 rounded-full typing-dot"></span></div></div></div>
+<div class="px-3 py-2 bg-emerald-50/60 border-t border-emerald-100 overflow-x-auto whitespace-nowrap flex gap-2">
+ <button onclick="sendQuickMessage('Có món ăn đặc sản nào ngon ở Phú Túc và Vĩnh Long?')" class="bg-white text-emerald-800 border border-emerald-200 text-xs px-3 py-1.5 rounded-full shrink-0">🍲 Đặc sản miệt vườn</button>
+ <button onclick="sendQuickMessage('Gợi ý vườn trái cây có thể tham quan ở Vĩnh Long')" class="bg-white text-emerald-800 border border-emerald-200 text-xs px-3 py-1.5 rounded-full shrink-0">🥭 Vườn trái cây</button>
+ <button onclick="sendQuickMessage('Gợi ý lịch trình du lịch 1 ngày ở Phú Túc, Vĩnh Long')" class="bg-white text-emerald-800 border border-emerald-200 text-xs px-3 py-1.5 rounded-full shrink-0">🗺️ Lịch trình 1 ngày</button>
+</div>
+<div class="p-3 bg-white border-t border-gray-100"><form id="chat-form" class="flex items-center gap-2"><input type="text" id="user-input" placeholder="Hỏi Chèn Ơi về món ăn, địa điểm, nhà vườn..." class="flex-1 bg-gray-50 text-gray-800 text-sm rounded-2xl px-4 py-3 outline-none border border-gray-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200" autocomplete="off"><button type="submit" id="send-btn" class="w-11 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl flex items-center justify-center shrink-0"><i class="fa-solid fa-paper-plane"></i></button></form></div>
+</div>
+
+<div id="qr-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden"><div class="bg-white rounded-3xl max-w-xs w-full p-6 shadow-2xl text-center space-y-4"><div class="flex justify-between items-center"><h3 class="font-bold text-emerald-900 text-sm">Quét mã mở Chèn Ơi! AI</h3><button onclick="closeModal('qr-modal')" class="text-gray-500"><i class="fa-solid fa-xmark"></i></button></div><div id="qrcode-container" class="p-3 bg-emerald-50 rounded-2xl inline-block border border-emerald-100 mx-auto"></div><p class="text-xs text-gray-500">Mã QR dẫn tới địa chỉ website hiện tại. Hãy mở website bằng đường link công khai để chia sẻ cho người khác.</p></div></div>
+<div id="status-modal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 hidden"><div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl space-y-3"><div class="flex justify-between items-center"><h3 class="font-bold text-emerald-900">Trạng thái kết nối AI</h3><button onclick="closeModal('status-modal')" class="text-gray-500"><i class="fa-solid fa-xmark"></i></button></div><p id="connection-detail" class="text-sm text-gray-700">Đang kiểm tra...</p><button onclick="checkServer()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-sm">Kiểm tra lại</button></div></div>
+
+<script>
+const SYSTEM_INSTRUCTION = `Bạn là "Chèn Ơi! AI", trợ lý du lịch thân thiện am hiểu du lịch miệt vườn Vĩnh Long, đặc biệt xã Phú Túc. Trả lời bằng tiếng Việt tự nhiên, gần gũi miền Tây. Giúp người dùng lên lịch trình theo thời gian, ngân sách, sở thích; giới thiệu đặc sản, trải nghiệm, điểm tham quan và gợi ý cách kiểm tra thông tin trước khi đi. Không bịa số điện thoại, giá vé, giờ mở cửa hoặc khẳng định cơ sở kinh doanh chưa được xác minh. Nếu không chắc thông tin cụ thể, hãy nói rõ và gợi ý xác minh với đơn vị địa phương. Dùng Markdown dễ đọc.`;
+let chatHistory = [];
+document.getElementById('chat-form').addEventListener('submit', handleChatSubmit);
+document.addEventListener('DOMContentLoaded', () => { updateQr(); checkServer(); });
+window.addEventListener('hashchange', updateQr);
+
+async function handleChatSubmit(e) {
+ e.preventDefault();
+ const input = document.getElementById('user-input');
+ const message = input.value.trim();
+ if (!message) return;
+ input.value = '';
+ appendUserMessage(message);
+ chatHistory.push({role:'user', parts:[{text:message}]});
+ showTyping(true);
+ document.getElementById('send-btn').disabled = true;
+ try {
+   const reply = await fetchAI();
+   appendBotMessage(reply);
+   chatHistory.push({role:'model', parts:[{text:reply}]});
+   document.getElementById('api-status-bar').classList.add('hidden');
+ } catch (err) {
+   console.error(err);
+   const msg = `Em chưa kết nối được máy chủ AI. (${escapeHtml(err.message || 'Lỗi không xác định')})\n\nBạn kiểm tra xem website đã được triển khai cùng máy chủ chưa và đã cấu hình **GEMINI_API_KEY** trong phần Environment Variables chưa nhé.`;
+   appendBotMessage(msg);
+   document.getElementById('api-status-bar').classList.remove('hidden');
+ } finally {
+   showTyping(false);
+   document.getElementById('send-btn').disabled = false;
+ }
+}
+async function fetchAI() {
+ const response = await fetch('/api/chat', {
+   method:'POST', headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({history:chatHistory, systemInstruction:SYSTEM_INSTRUCTION})
+ });
+ const data = await response.json().catch(()=>({}));
+ if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+ if (!data.reply) throw new Error('Máy chủ không trả về nội dung AI.');
+ return data.reply;
+}
+async function checkServer() {
+ const el = document.getElementById('connection-detail');
+ if (el) el.textContent = 'Đang kiểm tra máy chủ...';
+ try {
+  const r = await fetch('/api/health');
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || `HTTP ${r.status}`);
+  if (el) el.textContent = d.aiConfigured ? 'Máy chủ đang chạy và đã nhận cấu hình API Key. Hãy gửi tin nhắn để thử AI.' : 'Máy chủ đang chạy nhưng chưa có GEMINI_API_KEY. Hãy thêm biến môi trường này trên dịch vụ lưu trữ.';
+ } catch(e) {
+  if (el) el.textContent = 'Không kết nối được API máy chủ. Nếu bạn mở file bằng cách nhấp đúp (file://), hãy triển khai website lên dịch vụ Node.js trước.';
+ }
+}
+function appendUserMessage(text) {
+ const c=document.getElementById('chat-messages'), d=document.createElement('div');
+ d.className='flex items-start justify-end space-x-2.5';
+ const bubble=document.createElement('div'); bubble.className='max-w-[85%] bg-emerald-600 text-white p-3.5 rounded-2xl text-sm leading-relaxed'; bubble.textContent=text;
+ const avatar=document.createElement('div'); avatar.className='w-8 h-8 rounded-xl bg-emerald-800 text-white flex items-center justify-center shrink-0 text-xs font-bold'; avatar.textContent='Bạn';
+ d.append(bubble,avatar); c.appendChild(d); scrollToBottom();
+}
+function appendBotMessage(text) {
+ const c=document.getElementById('chat-messages'), d=document.createElement('div');
+ d.className='flex items-start space-x-2.5';
+ const avatar=document.createElement('div'); avatar.className='w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 text-sm'; avatar.textContent='🚣‍♀️';
+ const bubble=document.createElement('div'); bubble.className='max-w-[85%] bg-white border border-emerald-100 p-3.5 rounded-2xl shadow-sm text-gray-800 text-sm leading-relaxed markdown-body';
+ bubble.innerHTML=marked.parse(text); d.append(avatar,bubble); c.appendChild(d); scrollToBottom();
+}
+function sendQuickMessage(text){document.getElementById('user-input').value=text;document.getElementById('chat-form').requestSubmit();}
+function showTyping(show){document.getElementById('typing-indicator').classList.toggle('hidden',!show);scrollToBottom();}
+function scrollToBottom(){const c=document.getElementById('chat-messages');c.scrollTop=c.scrollHeight;}
+function escapeHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function resetChat(){chatHistory=[];document.getElementById('chat-messages').innerHTML='';appendBotMessage('Dạ em đã làm mới cuộc trò chuyện rồi nha! Bạn muốn khám phá điều gì ở Phú Túc và Vĩnh Long hôm nay? 🌴');}
+function openQrModal(){document.getElementById('qr-modal').classList.remove('hidden');updateQr();}
+function openStatusModal(){document.getElementById('status-modal').classList.remove('hidden');checkServer();}
+function closeModal(id){document.getElementById(id).classList.add('hidden');}
+function updateQr(){const el=document.getElementById('qrcode-container');if(!el||!window.QRCode)return;el.innerHTML='';new QRCode(el,{text:window.location.href,width:180,height:180});}
+</script>
+</body>
+</html>
